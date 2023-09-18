@@ -1,13 +1,16 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package KartyaTrukkKonzolonOOP;
 
-/**
- *
- * @author katona.janos
- */
-public class lap {
+
+public class Lap {
+
+    private final String leiras;
+    Lap(String leiras){
+        this.leiras = leiras;
+    }
+
+    public String getLeiras() {
+        return leiras;
+    }
     
 }
