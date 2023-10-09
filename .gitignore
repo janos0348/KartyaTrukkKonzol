@@ -1,40 +1,70 @@
-# Created by https://www.toptal.com/developers/gitignore/api/java,netbeans
-# Edit at https://www.toptal.com/developers/gitignore?templates=java,netbeans
 
-### Java ###
-# Compiled class file
-*.class
 
-# Log file
-*.log
 
-# BlueJ files
-*.ctxt
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+go
 
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
+create view hiánya as
+--1
+select belso.*, heti_óraszám - hany_van as hiany
+from
+	(select osztály,tant, count(osztály) as hany_van
+	from órarend
+	group by osztály, tant
+	union 
+	select osztály,tant, 0 from tanít
+	where osztály + tant not in (select osztály + tant from órarend))belso 
+	inner join tantárgy on tantárgy.tant = belso.tant
+where heti_óraszám > belso.hany_van
+go
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+create view hiányb as
+--2
+select belso.*, heti_óraszám - hany_van as hiany
+from
+	(select osztály,tant, count(osztály) as hany_van
+	from órarend
+	group by osztály, tant
+	union 
+	select osztály,tant, 0 from tanít
+	where not exists (select 1 from órarend where osztály = tanít.osztály))belso 
+	inner join tantárgy on tantárgy.tant = belso.tant
+where heti_óraszám > belso.hany_van
 
-### NetBeans ###
-**/nbproject/private/
-**/nbproject/Makefile-*.mk
-**/nbproject/Package-*.bash
-build/
-nbbuild/
-dist/
-nbdist/
-.nb-gradle/
+--c
+go
 
-# End of https://www.toptal.com/developers/gitignore/api/java,netbeans
+create view hiányc as
+
+select belso.*, heti_óraszám - hany_van as hiany
+from
+	(select osztály,tant, count(osztály) as hany_van
+	from órarend
+	group by osztály, tant
+	union 
+	(select osztály,tant, 0 from tanít
+	except 
+	select osztály,tant, 0
+	from órarend))belso 
+	inner join tantárgy on tantárgy.tant = belso.tant
+where heti_óraszám > belso.hany_van
+
+
+--d
+go
+
+create view hiányd as
+
+select belso.*, heti_óraszám - hany_van as hiany
+from
+	(select osztály,tant, count(osztály) as hany_van
+	from órarend
+	group by osztály , tant 
+	union 
+	select t.osztály,t.tant, 0
+	from tanít t
+	left outer join órarend o on o.osztály=t.osztály and o.tant=t.tant
+	where o.osztály is null
+	)belso 
+	inner join tantárgy on tantárgy.tant = belso.tant
+where heti_óraszám > belso.hany_van
